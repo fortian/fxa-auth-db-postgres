@@ -6,7 +6,7 @@
 const assert = require('insist')
 const dbServer = require('../../db-server')
 const log = require('../lib/log')
-const DB = require('../../lib/db/mysql')(log, dbServer.errors)
+const DB = require('../../lib/db/postgres')(log, dbServer.errors)
 const config = require('../../config')
 const P = require('../../lib/promise')
 const crypto = require('crypto')
@@ -15,7 +15,7 @@ const zeroBuffer16 = Buffer.from('00000000000000000000000000000000', 'hex')
 const zeroBuffer32 = Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex')
 const now = Date.now()
 
-describe('MySQL', () => {
+describe('PostgreSQL', () => {
 
   let db
   before(() => {

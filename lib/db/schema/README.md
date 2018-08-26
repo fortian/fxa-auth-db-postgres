@@ -1,7 +1,8 @@
 ## Schema
 
-This project uses the [mysql-patcher](https://www.npmjs.com/package/mysql-patcher) project to perform its database
-schema migrations, however this is only used in development, testing and staging but not in production. Production is
+This project uses the [pg-patcher](https://www.npmjs.com/package/pg-patcher) project to perform its database
+schema migrations.  However, this is only theoretical, because Mozilla doesn't use this yet.
+Production would nominally be
 performed manually making sure each step succeeds properly.
 
 When adding a new patch file you need to provide two things:
@@ -9,13 +10,18 @@ When adding a new patch file you need to provide two things:
 1. the forward and reverse patches in `db/schema/patch-xxx-xxx.sql`
 2. update `db/patch.js` to point to the new patches
 
-Each forward patch should perform it's actions and finally update the `dbMetadata` to the new patch level.
+Each forward patch should perform its actions and finally update the `dbMetadata` to the new patch level.
 
-Every reverse patch should perform the same actions but in exactly the same reverse order, but still update
+Every reverse patch should perform the same actions but in exactly the same reverse order, but *still* update
 the `dbMetadata` table last. Also note that for this project we decided to comment out the reverse patch
 so that it couldn't be run accidentally.
 
 ## Database Table Access Order
+
+In principle, a grown-up, production-ready database shouldn't fail as a matter
+of course.  I assume PostgreSQL doesn't randomly deadlock, though I may live to
+be corrected.  Out of pessimism, Mozilla's discussion of what to do when the
+database comes apart in your hands is below.
 
 MySql tells us that we
 [should expect deadlocks to occur](https://docs.oracle.com/cd/E17952_01/refman-5.0-en/innodb-deadlocks.html) every so

@@ -1,3 +1,5 @@
+-- XXX This needs serious conversion to get rid of MySQL-isms.
+
 CREATE PROCEDURE `createAccount_7`(
     IN `inUid` BINARY(16) ,
     IN `inNormalizedEmail` VARCHAR(255),

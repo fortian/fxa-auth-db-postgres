@@ -1,3 +1,6 @@
+This is Mozilla's changelog, and will continue to be until changes beyond
+trivial substitutions are required.
+
 <a name="1.119.1"></a>
 ## [1.119.1](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.118.1...v1.119.1) (2018-08-23)
 

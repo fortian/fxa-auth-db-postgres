@@ -1,3 +1,5 @@
+-- XXX This needs serious conversion to get rid of MySQL-isms.
+
 CREATE TABLE IF NOT EXISTS verificationReminders (
   id BINARY(32) PRIMARY KEY,
   uid BINARY(16) NOT NULL,

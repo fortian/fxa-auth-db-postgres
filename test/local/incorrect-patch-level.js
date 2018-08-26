@@ -6,7 +6,7 @@
 const assert = require('insist')
 const dbServer = require('../../db-server')
 const log = require('../lib/log')
-const DB = require('../../lib/db/mysql')(log, dbServer.errors)
+const DB = require('../../lib/db/postgres')(log, dbServer.errors)
 const config = require('../../config')
 const patch = require('../../lib/db/patch')
 

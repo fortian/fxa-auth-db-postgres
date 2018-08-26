@@ -71,11 +71,11 @@ function run (config, now) {
   )
   var os = require('os')
   var log = require('../lib/logging')('bin.metrics')
-  var mysql = require('../lib/db/mysql')(log, require('../db-server').errors)
+  var postgres = require('../lib/db/postgres')(log, require('../db-server').errors)
   var self = this
   var db
 
-  return mysql.connect({
+  return postgres.connect({
     master: {
       host: config.General.db_dnsname,
       user: config.General.db_username,
@@ -93,8 +93,7 @@ function run (config, now) {
   .then(function (result) {
     db = result
     return db.readMultiple([
-      { sql: 'SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED' },
-      { sql: 'START TRANSACTION' },
+      { sql: 'BEGIN TRANSACTION ISOLATION LEVEL READ UNCOMMITTED' },
       metricsQuery('countAccounts'),
       metricsQuery('countVerifiedAccounts'),
       metricsQuery('countAccountsWithTwoOrMoreDevices'),

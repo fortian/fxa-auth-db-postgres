@@ -1,3 +1,5 @@
+-- XXX This needs serious conversion to get rid of MySQL-isms.
+
 SET NAMES utf8mb4 COLLATE utf8mb4_bin;
 
 CALL assertPatchLevel('83');

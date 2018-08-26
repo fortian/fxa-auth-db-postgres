@@ -1,3 +1,5 @@
+-- XXX This needs serious conversion to get rid of MySQL-isms.
+
 -- Add emails table and corresponding procedures to
 -- create, get and delete them.
 

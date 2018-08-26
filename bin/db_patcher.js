@@ -3,10 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var path = require('path')
-var mysql = require('mysql')
+var pg = require('pg')
 var config = require('../config')
 var logger = require('../lib/logging')('bin.db_patcher')
-var patcher = require('mysql-patcher')
+var patcher = require('pg-patcher')
 
 var patch = require('../lib/db/patch')
 const constants = require('../lib/constants')
@@ -17,7 +17,7 @@ options.dir = path.join(__dirname, '..', 'lib', 'db', 'schema')
 options.patchKey = config.patchKey
 options.metaTable = 'dbMetadata'
 options.patchLevel = patch.level
-options.mysql = mysql
+options.pg = pg
 options.createDatabase = true
 options.reversePatchAllowed = false
 options.database = constants.DATABASE_NAME

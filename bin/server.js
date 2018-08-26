@@ -11,7 +11,7 @@ var config = require('../config')
 var dbServer = require('../db-server')
 var error = dbServer.errors
 var logger = require('../lib/logging')('bin.server')
-var DB = require('../lib/db/mysql')(logger, error)
+var DB = require('../lib/db/postgres')(logger, error)
 var restify = require('restify')
 // configure Sentry
 var Raven = require('raven')
@@ -25,7 +25,7 @@ if (sentryDsn) {
 }
 
 function logCharsetInfo(db, poolName) {
-  // Record some information about mysql connection configuration and
+  // Record some information about postgres connection configuration and
   // charset at startup.
   db._showVariables(poolName)
     .then(

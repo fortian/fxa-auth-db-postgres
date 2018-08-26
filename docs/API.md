@@ -1,6 +1,6 @@
 # Server API
 
-The `fxa-auth-db-mysql` has the following API which the `fxa-auth-server` uses.
+The `fxa-auth-db-postgres` has the following API which the `fxa-auth-server` uses.
 
 # Overview
 

@@ -1,30 +1,30 @@
 {
-  "name": "fxa-auth-db-mysql",
+  "name": "fxa-auth-db-postgres",
   "version": "1.119.1",
-  "description": "MySQL backend for Firefox Accounts",
+  "description": "PostgreSQL backend for Firefox Accounts",
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mozilla/fxa-auth-db-mysql"
+    "url": "https://github.com/mozilla/fxa-auth-db-postgres"
   },
   "bin": {
-    "fxa-auth-db-mysql": "bin/db_patcher.js"
+    "fxa-auth-db-postgres": "bin/db_patcher.js"
   },
   "scripts": {
     "outdated": "npm outdated --depth 0 || exit 0",
     "shrink": "npmshrink",
     "start": "node ./bin/db_patcher.js >/dev/null && node ./bin/server.js",
     "start-mem": "node ./bin/mem",
-    "test": "npm run test-mysql && npm run test-mem && npm run test-server",
+    "test": "npm run test-postgres && npm run test-mem && npm run test-server",
     "test-mem": "./scripts/mocha-coverage.js test/mem",
-    "test-mysql": "node ./bin/db_patcher.js >/dev/null && ./scripts/mocha-coverage.js test/backend test/local",
+    "test-postgres": "node ./bin/db_patcher.js >/dev/null && ./scripts/mocha-coverage.js test/backend test/local",
     "test-server": "./scripts/mocha-coverage.js db-server/test/local",
     "test-travis": "grunt && node ./bin/db_patcher.js && ./scripts/mocha-coverage.js test/backend test/local db-server/test/local test/mem"
   },
   "author": "Mozilla (https://mozilla.org/)",
-  "homepage": "https://github.com/mozilla/fxa-auth-db-mysql",
+  "homepage": "https://github.com/fortian/fxa-auth-db-postgres",
   "bugs": {
-    "url": "https://github.com/mozilla/fxa-auth-db-mysql/issues"
+    "url": "https://github.com/mozilla/fxa-auth-db-postgres/issues"
   },
   "license": "MPL-2.0",
   "dependencies": {
@@ -34,8 +34,8 @@
     "fxa-jwtool": "0.7.2",
     "ip": "1.1.5",
     "mozlog": "2.1.0",
-    "mysql": "2.15.0",
-    "mysql-patcher": "0.7.0",
+    "pg": "7.4.0",
+    "pg-patcher": "0.4.0",
     "newrelic": "4.1.0",
     "raven": "2.3.0",
     "request": "2.83.0",
@@ -67,6 +67,6 @@
     "firefox-accounts",
     "backend",
     "storage",
-    "mysql"
+    "postgres"
   ]
 }

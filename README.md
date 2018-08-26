@@ -1,7 +1,8 @@
-# Firefox Accounts database service
+# Work in Progress
 
-[![Build Status][ci-status-icon]][ci-status]
-[![CircleCI](https://circleci.com/gh/mozilla/fxa-auth-db-mysql.svg?style=svg)](https://circleci.com/gh/mozilla/fxa-auth-db-mysql)
+Nothing has been done beyond trivial renames at this point.
+
+# Firefox Accounts database service
 
 Node.js-based database service
 for Firefox Accounts.
@@ -11,7 +12,7 @@ Includes:
 * A [memory-store backend](#memory-store-backend).
   Useful as a stub
   for testing against.
-* A [MySQL backend](#mysql-backend).
+* A [PostgreSQL backend](#postgresql-backend).
   Used in production.
 
 To run the tests
@@ -25,7 +26,7 @@ npm test
 
 * node.js 6
 * npm
-* MySQL (we use version 5.6.34 in production)
+* PostgreSQL (we use version 10.4 in production)
 
 ## API Server
 
@@ -55,7 +56,7 @@ will return a server
 that uses the memory-store backend:
 
 ```js
-var fxadb = require('fxa-auth-db-mysql')
+var fxadb = require('fxa-auth-db-postgres')
 ```
 
 To run the memory-store tests:
@@ -64,15 +65,15 @@ To run the memory-store tests:
 npm run test-mem
 ```
 
-## MySQL backend
+## PostgreSQL backend
 
 Implements the [backend API][dbdocs]
-as a MySQL database.
+as a PostgreSQL database.
 
-To run the MySQL tests:
+To run the PostgreSQL tests:
 
 ```sh
-npm run test-mysql
+npm run test-postgres
 ```
 
 ### Configuration
@@ -123,7 +124,7 @@ is configured in `config/$NODE_ENV.json`
 (port 8000 by default).
 
 If the server fails to start,
-check that MySQL is running
+check that PostgreSQL is running
 and that your active config
 has the correct settings
 to connect to the database.
@@ -151,7 +152,7 @@ as a precaution against
 accidental execution.
 
 If the command fails,
-check that MySQL is running
+check that PostgreSQL is running
 and that your active config
 has the correct settings
 to connect to the database.
@@ -159,10 +160,10 @@ to connect to the database.
 ### Clean-up
 
 If you want to clean the database,
-just drop it in MySQL:
+just drop it in PostgreSQL:
 
 ```sh
-mysql -u root -p -e 'DROP DATABASE fxa'
+psql -u postgres -p -c 'DROP DATABASE fxa'
 ```
 
 It will be recreated automatically
@@ -172,8 +173,6 @@ next time you run `npm start`.
 
 [MPL 2.0][license]
 
-[ci-status-icon]: https://travis-ci.org/mozilla/fxa-auth-db-mysql.svg?branch=master
-[ci-status]: https://travis-ci.org/mozilla/fxa-auth-db-mysql
 [apidocs]: docs/API.md
 [dbdocs]: docs/DB_API.md
 [server-readme]: db-server/README.md

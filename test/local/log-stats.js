@@ -13,7 +13,7 @@ config.statInterval = 100
 
 const log = Object.assign({}, require('../lib/log'))
 
-// monkeypatch log.info to hook into db/mysql.js:statInterval
+// monkeypatch log.info to hook into db/postgres.js:statInterval
 const dfd = P.defer()
 log.info = function(msg, stats) {
   if (msg !== 'stats') {
@@ -22,7 +22,7 @@ log.info = function(msg, stats) {
   dfd.resolve(stats)
 }
 
-const DB = require('../../lib/db/mysql')(log, dbServer.errors)
+const DB = require('../../lib/db/postgres')(log, dbServer.errors)
 
 describe('DB statInterval', () => {
 
@@ -37,7 +37,7 @@ describe('DB statInterval', () => {
     return dfd.promise
       .then(stats => {
         assert.equal(typeof stats, 'object')
-        assert.equal(stats.stat, 'mysql')
+        assert.equal(stats.stat, 'postgres')
         assert.equal(stats.errors, 0)
         assert.equal(stats.connections, 1)
       })

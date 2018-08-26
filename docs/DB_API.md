@@ -98,8 +98,8 @@ default anything in code or in the datastore (either by default values or trigge
 
 Please note that when a parameter type is specified as `Buffer` you can choose whether to store as a binary type or as
 a hex encoded string. This decision will depend on what your storage backend can do or if it is faster with one or the
-other. e.g. the `mysql` backend stores these fields as `binary(??)`. The test `memory` backend stores these as
-hex encoded strings.
+other. e.g. the `postgres` backend stores these fields as `bytea` (which can be considered a hex-encoded string).
+The test `memory` backend stores these as hex encoded strings.
 
 # Promises #
 
@@ -336,7 +336,7 @@ Gets the account record related to this (normalized) email address. The email is
 Parameters:
 
 * emailBuffer: the email address will be a hex encoded string, which is converted back to a string, then
-  `.toLowerCase()`. In the MySql backend we use `LOWER(?)` which uses the current locale for case-folding.
+  `.toLowerCase()`. In the PostgreSQL backend we use `LOWER(?)` which uses the current locale for case-folding.
 
 Returns:
 
@@ -365,7 +365,7 @@ The email is provided in a Buffer.
 Parameters:
 
 * emailBuffer: the email address will be a hex encoded string, which is converted back to a string, then
-  `.toLowerCase()`. In the MySql backend we use `LOWER(?)` which uses the current locale for case-folding.
+  `.toLowerCase()`. In the PostgreSQL backend we use `LOWER(?)` which uses the current locale for case-folding.
 
 Returns:
 
@@ -394,7 +394,7 @@ Checks if an account exists for this (normalized) email address.
 Parameters:
 
 * email: the email address will be a hex encoded string, which is converted back to a string, then `.toLowerCase()`. In
-  the MySql backend we use `LOWER(?)` which uses the current locale for case-folding.
+  the PostgreSQL backend we use `LOWER(?)` which uses the current locale for case-folding.
 
 Returns:
 
@@ -411,7 +411,7 @@ Get the email entry associated with this `emailBuffer`. This email is located on
 Parameters:
 
 * email: the email address will be a hex encoded string, which is converted back to a string, then `.toLowerCase()`. In
-  the MySql backend we use `LOWER(?)` which uses the current locale for case-folding.
+  the PostgreSQL backend we use `LOWER(?)` which uses the current locale for case-folding.
 
 Returns:
 
@@ -477,7 +477,7 @@ Returns:
     * any error from the underlying storage system (wrapped in `error.wrap()`
 
 Note: for some tokens there should only ever be one row per `uid`. This applies to `accountResetTokens`,
-`passwordForgotTokens` and `passwordChangeTokens`. In the MySql driver we currently use `REPLACE INTO ...` so you
+`passwordForgotTokens` and `passwordChangeTokens`. In the PostgreSQL driver we currently use "UPSERT", so you
 should do something equivalent with your storage backend.
 
 ### .sessionToken(tokenId) ###

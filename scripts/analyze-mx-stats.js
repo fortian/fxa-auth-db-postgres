@@ -23,7 +23,7 @@ var P = require('../lib/promise')
 var log = {
   info: function () {},
 }
-var DB = require('../lib/db/mysql')(log, require('../db-server').errors)
+var DB = require('../lib/db/postgres')(log, require('../db-server').errors)
 var config = require('../config')
 
 var resolve = P.promisify(dns.resolve)
@@ -36,7 +36,7 @@ DB.connect(config).then(function (db) {
   // Only sample emails we know to be valid.
   query += 'AND emailVerified '
   // Simulate random ordering, by walking the uid primary key.
-  // By default MySQL will walk them in order using the email index.
+  // By default Postgres will walk them in order using whatever it chooses.
   query += 'ORDER BY uid '
   query += 'LIMIT 10000'
   return db.read(query)

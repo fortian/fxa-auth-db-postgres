@@ -12,7 +12,7 @@ const crypto = require('crypto')
 const dbServer = require(`${ROOT_DIR}/db-server`)
 const log = require('../lib/log')
 const P = require(`${ROOT_DIR}/lib/promise`)
-const DB = require(`${ROOT_DIR}/lib/db/mysql`)(log, dbServer.errors)
+const DB = require(`${ROOT_DIR}/lib/db/postgres`)(log, dbServer.errors)
 const fake = require(`${ROOT_DIR}/db-server/test/fake`)
 // shallow copy, but it's all we need
 const config = Object.assign({}, require(`${ROOT_DIR}/config`))

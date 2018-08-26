@@ -1,3 +1,5 @@
+-- XXX This needs serious conversion to get rid of MySQL-isms.
+
 --
 -- This migration lets devices register "available commands",
 -- a simple mapping from opaque command names to opaque blobs of

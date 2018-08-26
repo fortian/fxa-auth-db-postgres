@@ -81,7 +81,7 @@ function testVersionResponse(client, route) {
       assert.equal(r.res.statusCode, 200, 'version returns 200 OK')
       assert(r.obj.version.match(/\d+\.\d+\.\d+/),
            'Version has a semver version property')
-      assert(['Memory', 'MySql'].indexOf(r.obj.implementation) !== -1,
+      assert(['Memory', 'PostgreSQL'].indexOf(r.obj.implementation) !== -1,
            'Version has a known implementation  property')
     })
 }

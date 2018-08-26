@@ -1,3 +1,5 @@
+-- XXX This needs serious conversion to get rid of MySQL-isms.
+
 --
 -- This migration updates the device-commands-related stored procedures
 -- to correctly use the (uid, deviceId) index when joining onto the
