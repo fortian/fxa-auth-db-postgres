@@ -72,8 +72,9 @@ There are a number of methods that a DB storage backend should implement:
     * .consumeRecoveryCode(uid, code)
 * Recovery keys
     * .createRecoveryKey(uid, data)
-    * .getRecoveryKey(uid)
+    * .getRecoveryKey(data)
     * .deleteRecoveryKey(uid)
+    * .recoveryKeyExists(uid)
 * General
     * .ping()
     * .close()
@@ -138,7 +139,19 @@ Parameters:
 
 Returns:
 
-* success - returns the account object above
+* data:
+    * email - (string)
+    * normalizedEmail - (string) the same as above but `.toLowerCase()`
+    * emailCode - (Buffer16)
+    * emailVerified - (number) 0|1, to show whether an account has been verified
+    * createdAt - (number) an epoch, such as that created with `Date.now()`
+    * verifyHash - (Buffer32)
+    * authSalt - (Buffer32)
+    * wrapWrapKb - (Buffer32)
+    * verifierSetAt - (number) an epoch, such as that created with `Date.now()`
+    * verifierVersion - (number) currently always set to 1, may be 2 or more in the future
+    * profileChangedAt - (number) an epoch, such as that created with `Date.now()`
+
 * error (can be either):
     * a `error.notFound()` if this account does not exist
     * an error from the underlying storage system
@@ -383,6 +396,7 @@ Returns:
         * authSalt - (Buffer32)
         * verifierSetAt - (number) an epoch
         * primaryEmail - (string)
+        * profileChangedAt = (number) an epoch
 * rejects: with one of:
     * `error.notFound()` if no account exists for this email address
     * any error from the underlying storage engine
@@ -954,7 +968,7 @@ Returns:
   * Any error from the underlying storage system (wrapped in `error.wrap()`)
   * `error.notFound()` if this user found
 
-## getRecoveryKey(uid)
+## getRecoveryKey(data)
 
 Get the recovery key for this user.
 
@@ -962,6 +976,8 @@ Parameters:
 
 * `uid` (Buffer16):
   The uid of the owning account
+* `recoveryKeyId` (Buffer32):
+  The recoveryKeyId for account
 
 Returns:
 
@@ -988,3 +1004,19 @@ Returns:
 * Rejects with:
   * Any error from the underlying storage system (wrapped in `error.wrap()`)
   * `error.notFound()` if this user or recovery key not found
+
+## recoveryKeyExists(uid)
+
+Check to see if a recovery key exists for this user.
+
+Parameters:
+
+* `uid` (Buffer16):
+  The uid of the owning account
+
+Returns:
+
+* Resolves with:
+  * object {"exists": true}
+* Rejects with:
+  * Any error from the underlying storage system (wrapped in `error.wrap()`)
