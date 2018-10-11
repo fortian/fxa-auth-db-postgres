@@ -6,6 +6,7 @@
 const assert = require('insist')
 const crypto = require('crypto')
 const P = require('bluebird')
+const util = require('../../../lib/db/util')
 
 const zeroBuffer16 = Buffer.from('00000000000000000000000000000000', 'hex')
 const zeroBuffer32 = Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex')
@@ -223,6 +224,7 @@ module.exports = function (config, DB) {
             assert.equal(account.createdAt, accountData.createdAt, 'createdAt')
             assert.equal(account.verifierSetAt, accountData.createdAt, 'verifierSetAt has been set to the same as createdAt')
             assert.equal(account.locale, accountData.locale, 'locale')
+            assert.equal(account.profileChangedAt, account.createdAt, 'profileChangedAt set to createdAt')
           })
       })
 
@@ -329,6 +331,7 @@ module.exports = function (config, DB) {
             assert.deepEqual(token.emailCode, accountData.emailCode, 'token emailCode same as account emailCode')
             assert.equal(token.verifierSetAt, accountData.verifierSetAt, 'verifierSetAt is correct')
             assert.equal(token.accountCreatedAt, accountData.createdAt, 'accountCreatedAt is correct')
+            assert.equal(token.profileChangedAt, accountData.createdAt, 'profileChangedAt is correct')
           })
       })
 
@@ -745,6 +748,7 @@ module.exports = function (config, DB) {
         .then(function (account) {
           assert(account.emailVerified, 'account should now be emailVerified (truthy)')
           assert.equal(account.emailVerified, 1, 'account should now be emailVerified (1)')
+          assert.equal(account.profileChangedAt > account.createdAt, true, 'profileChangedAt updated')
         })
     })
 
@@ -1203,10 +1207,14 @@ module.exports = function (config, DB) {
         return db.account(accountData.uid)
           .then((account) => {
             assert.ok(account, 'account exists')
+            accountData.verifierSetAt = now + 1
             return db.resetAccount(accountData.uid, accountData)
           })
           .then(() => db.account(accountData.uid))
-          .then((account) => assert.ok(account, 'account exists'))
+          .then((account) => {
+            assert.ok(account, 'account exists')
+            assert.equal(account.profileChangedAt, account.verifierSetAt, 'profileChangedAt matches verifierSetAt')
+          })
       })
 
     })
@@ -1305,6 +1313,14 @@ module.exports = function (config, DB) {
       it('should fail with unknown uid', () => {
         return db.securityEvents({id: newUuid(), ipAddr: addr1})
           .then((results) => assert.equal(results.length, 0, 'no events for unknown uid'))
+      })
+
+      it('should delete events when account is deleted', () => {
+        return db.deleteAccount(accountData.uid)
+          .then(() => db.securityEvents({id: uid1, ipAddr: addr1}))
+          .then((res) => {
+            assert.equal(res.length, 0, 'no events returned')
+          })
       })
     })
 
@@ -1596,6 +1612,11 @@ module.exports = function (config, DB) {
             assert.equal(result[1].email, secondEmail.email, 'matches secondEmail email')
             assert.equal(!! result[1].isPrimary, false, 'isPrimary is false on secondEmail email')
             assert.equal(!! result[1].isVerified, true, 'secondEmail isVerified is true')
+
+            return db.account(accountData.uid)
+              .then((account) => {
+                assert.equal(account.profileChangedAt > account.createdAt, true, 'profileChangedAt updated')
+              })
           })
       })
 
@@ -1616,6 +1637,10 @@ module.exports = function (config, DB) {
             assert.equal(!! result[0].isPrimary, true, 'isPrimary is true on account email')
             assert.equal(!! result[0].isVerified, accountData.emailVerified, 'matches account emailVerified')
 
+            return db.account(accountData.uid)
+              .then((account) => {
+                assert.equal(account.profileChangedAt > account.createdAt, true, 'profileChangedAt updated')
+              })
           })
       })
 
@@ -1903,6 +1928,7 @@ module.exports = function (config, DB) {
             assert.deepEqual(res[0].primaryEmail, secondEmail.email, 'primary email should be set to update email')
             assert.ok(res[0].createdAt, 'should set createdAt')
             assert.deepEqual(res[0].createdAt, res[1].createdAt, 'account records should have the same createdAt')
+            assert.equal(res[0].profileChangedAt > res[0].createdAt, true, 'profileChangedAt updated')
           })
       })
     })
@@ -2036,6 +2062,11 @@ module.exports = function (config, DB) {
             return db.totpToken(accountData.uid)
               .then(assert.fail, (err) => {
                 assert.equal(err.errno, 116, 'correct errno, not found')
+
+                return db.account(accountData.uid)
+              })
+              .then((account) => {
+                assert.equal(account.profileChangedAt > account.createdAt, true, 'profileChangedAt updated')
               })
           })
       })
@@ -2050,6 +2081,11 @@ module.exports = function (config, DB) {
                 assert.equal(token.epoch, epoch, 'correct epoch')
                 assert.equal(token.verified, true, 'correct verified')
                 assert.equal(token.enabled, true, 'correct enable')
+
+                return db.account(accountData.uid)
+              })
+              .then((account) => {
+                assert.equal(account.profileChangedAt > account.createdAt, true, 'profileChangedAt updated')
               })
           })
       })
@@ -2057,6 +2093,14 @@ module.exports = function (config, DB) {
       it('should fail to update unknown totp token', () => {
         return db.updateTotpToken(newUuid(), {verified: true, enabled: true})
           .then(assert.fail, (err) => {
+            assert.equal(err.errno, 116, 'correct errno, not found')
+          })
+      })
+
+      it('should delete token when account deleted', () => {
+        return db.deleteAccount(accountData.uid)
+          .then(() => db.totpToken(accountData.uid))
+          .then(() => assert.fail('should have deleted totp token'), (err) => {
             assert.equal(err.errno, 116, 'correct errno, not found')
           })
       })
@@ -2189,6 +2233,19 @@ module.exports = function (config, DB) {
           })
       })
 
+      it('should remove codes when account deleted', () => {
+        let recoveryCodes
+        return db.replaceRecoveryCodes(account.uid, 2)
+          .then((codes) => {
+            recoveryCodes = codes
+            return db.deleteAccount(account.uid)
+          })
+          .then((result) => db.consumeRecoveryCode(account.uid, recoveryCodes[0]))
+          .then(() => assert.fail('should have removed codes'), (err) => {
+            assert.equal(err.errno, 116, 'correct errno, not found')
+          })
+      })
+
       describe('should consume recovery codes', function () {
         // Consuming recovery codes is more time intensive since the scrypt hashes need
         // to be compared. Let set timeout higher than 2s default.
@@ -2279,18 +2336,21 @@ module.exports = function (config, DB) {
 
       it('should get account recovery key', () => {
         const options = {
-          id: account.uid
+          id: account.uid,
+          recoveryKeyId: data.recoveryKeyId
         }
         return db.getRecoveryKey(options)
           .then((res) => {
             assert.equal(res.recoveryData, data.recoveryData, 'recovery data set')
-            assert.equal(res.recoveryKeyId.toString('hex'), data.recoveryKeyId.toString('hex'), 'recovery data set')
+            const recoveryKeyIdHash = util.createHash(data.recoveryKeyId)
+            assert.equal(res.recoveryKeyIdHash.toString('hex'), recoveryKeyIdHash.toString('hex'), 'recoveryKeyId set')
           })
       })
 
       it('should fail to get key for incorrect user', () => {
         const options = {
-          id: 'unknown'
+          id: 'unknown',
+          recoveryKeyId: '123'
         }
         return db.getRecoveryKey(options)
           .then(assert.fail, (err) => {
@@ -2298,12 +2358,13 @@ module.exports = function (config, DB) {
           })
       })
 
-      it('should fail to get unknown key', () => {
+      it('should fail to get non-existent key', () => {
         account = createAccount()
         return db.createAccount(account.uid, account)
           .then(() => {
             const options = {
-              id: account.uid
+              id: account.uid,
+              recoveryKeyId: 'unknown'
             }
             return db.getRecoveryKey(options)
               .then(assert.fail, (err) => {
@@ -2312,14 +2373,51 @@ module.exports = function (config, DB) {
           })
       })
 
-      it('should delete account recovery key', () => {
+      it('should fail to get key with invalid recoveryKeyId', () => {
+        const options = {
+          id: account.uid,
+          recoveryKeyId: 'incorrect recoveryKeyId'
+        }
+        return db.getRecoveryKey(options)
+          .then(assert.fail, (err) => {
+            assert.equal(err.errno, 159, 'incorrect recoveryKeyId')
+          })
+      })
+
+      it('should return true if recovery key exists', () => {
+        return db.recoveryKeyExists(account.uid)
+          .then((res) => {
+            assert.equal(res.exists, true, 'key exists')
+          })
+      })
+
+      it('should return false if recovery key doesn\'t exist', () => {
+        account = createAccount()
+        return db.createAccount(account.uid, account)
+          .then(() => {
+            return db.recoveryKeyExists(account.uid)
+              .then((res) => {
+                assert.equal(res.exists, false, 'key doesn\'t exist')
+              })
+          })
+      })
+
+      it('should throw when checking for recovery key on non-existent user', () => {
+        return db.recoveryKeyExists('nonexistent')
+          .then((res) => {
+            assert.equal(res.exists, false, 'key doesn\'t exist')
+          })
+      })
+
+      it('should remove recovery key when account deleted', () => {
         const options = {
           id: account.uid,
           recoveryKeyId: data.recoveryKeyId
         }
-        return db.deleteRecoveryKey(options)
-          .then((res) => {
-            assert.ok(res)
+        return db.deleteAccount(account.uid)
+          .then(() => db.getRecoveryKey(options))
+          .then(() => assert.fail('should have deleted recovery key'), (err) => {
+            assert.equal(err.errno, 116, 'correct errno, not found')
           })
       })
     })
