@@ -1,11 +1,11 @@
 {
   "name": "fxa-auth-db-postgres",
-  "version": "1.122.0",
+  "version": "1.123.0",
   "description": "PostgreSQL backend for Firefox Accounts",
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mozilla/fxa-auth-db-postgres"
+    "url": "https://github.com/fortian/fxa-auth-db-postgres"
   },
   "bin": {
     "fxa-auth-db-postgres": "bin/db_patcher.js"
