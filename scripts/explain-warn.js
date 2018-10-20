@@ -292,7 +292,7 @@ function parseIgnoreFile () {
 function getProcedureNames () {
   return cp.execSync(
     // eslint-disable-next-line quotes
-    `grep 'CALL ' "lib/db/mysql.js" | awk -F 'CALL +' '{print $2}' | cut -d '(' -f 1`,
+    `grep 'CALL ' "lib/db/postgres.js" | awk -F 'CALL +' '{print $2}' | cut -d '(' -f 1`,
     RETURN_STRING
   )
     .split('\n')
